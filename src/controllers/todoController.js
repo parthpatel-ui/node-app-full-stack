@@ -1,22 +1,14 @@
 const { MongoClient, ObjectId } = require('mongodb');
-
-// MongoDB connection URI (replace with your URI)
-const uri = process.env.mongodb_conn;
+const { connectToDB, closeDB } = require('../config/db');
 
 // Database and Collection Name
 const dbName = 'database';
 const collectionName = 'todolist';
 
 async function getDocumentById(req, res) {
-    const client = new MongoClient(uri);
-
     try {
-        // Connect to MongoDB
-        await client.connect();
-        console.log('Connected to MongoDB');
-
         // Access the database and collection
-        const db = client.db(dbName);
+        const db = await connectToDB(dbName);
         const collection = db.collection(collectionName);
 
         // Find the document by `_id`
@@ -25,26 +17,17 @@ async function getDocumentById(req, res) {
 
     } catch (error) {
         console.error('Error:', error);
-        res.status(400).json({ message: error, success: false });
+        res.status(400).json({ message: 'Something went wrong', success: false });
     } finally {
         // Close the connection
-        await client.close();
+        await closeDB();
     }
 }
 
 async function getAllDocuments(req, res) {
-    const client = new MongoClient(uri, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    });
-
     try {
-        // Connect to MongoDB
-        await client.connect();
-        console.log('Connected to MongoDB');
-
         // Access the database and collection
-        const db = client.db(dbName);
+        const db = await connectToDB(dbName);
         const collection = db.collection(collectionName);
 
         // Get all documents
@@ -53,10 +36,9 @@ async function getAllDocuments(req, res) {
 
     } catch (error) {
         console.error('Error:', error);
-        res.status(400).json({ message: error, success: false });
+        res.status(400).json({ message: 'Something went wrong', success: false });
     } finally {
-        // Close the connection
-        await client.close();
+        await closeDB();
     }
 }
 

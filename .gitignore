@@ -25,3 +25,4 @@ downloads/Gdrive_Downloads/*
 !downloads/Gdrive_Downloads/*.gitkeep
 downloads/Azure_Downloads/*
 !downloads/Azure_Downloads/*.gitkeep
+.env

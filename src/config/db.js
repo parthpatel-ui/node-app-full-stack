@@ -1,28 +1,24 @@
-const { MongoClient } = require('mongodb');
+const mongoose = require('mongoose');
 
-// MongoDB connection URL (replace with your connection string)
-const url = process.env.mongodb_conn;
-const client = new MongoClient(url);
-
-let db;
-
-// Function to connect to MongoDB
-const connectToDB = async (dbName) => {
+// Connect to MongoDB
+async function connectDB() {
   try {
-    await client.connect();
-    console.log('Connected to MongoDB');
-    db = client.db(dbName);
-    return db;
-  } catch (err) {
-    console.error('Error connecting to MongoDB:', err);
-    throw err;
+    await mongoose.connect(process.env.mongodb_conn, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log('Connected to MongoDB using Mongoose');
+  } catch (error) {
+    console.error('Error connecting to MongoDB:', error);
+    process.exit(1);
   }
-};
+}
 
-// Function to close the database connection
-const closeDB = async () => {
-  await client.close();
-  console.log('Disconnected from MongoDB');
-};
+// Handle process termination signals
+process.on('SIGINT', async () => {
+  console.log('Closing MongoDB connection due to app termination');
+  await mongoose.connection.close();
+  process.exit(0);
+});
 
-module.exports = { connectToDB, closeDB };
+module.exports = {connectDB};

@@ -1,6 +1,9 @@
 require('dotenv').config();
 const express = require('express');
 const app = express();
+const { connectDB } = require('./src/config/db');
+
+connectDB();
 
 // Define a route
 app.get('/ping', (req, res) => {
@@ -12,9 +15,11 @@ app.get('/ping', (req, res) => {
 const authRoutes = require('./src/routes/auth');
 const todoRoutes = require('./src/routes/todos');
 
+app.use(express.json());
+
 // Use routes
 app.use('/', authRoutes);
-app.use('/todos', todoRoutes);
+app.use('/api/tasks', todoRoutes);
 
 
 // Start the server

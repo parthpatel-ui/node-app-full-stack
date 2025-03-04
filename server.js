@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const app = express();
+const path = require('path');
+
 const { connectDB } = require('./src/config/db');
 
 connectDB();
@@ -23,6 +25,8 @@ app.use('/', authRoutes);
 app.use('/api/tasks', todoRoutes);
 app.use('/user', userRoutes);
 
+// Serve static files from the 'public/upload' directory
+app.use('/uploads', express.static(path.join(__dirname, './public/uploads')));
 
 // Start the server
 const PORT = 3000;

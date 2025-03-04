@@ -1,4 +1,6 @@
 const Todo = require('../models/task');
+const upload = require('../middlewares/upload');
+const mongoose = require('mongoose');
 
 // Database and Collection Name
 
@@ -20,11 +22,19 @@ async function getDocumentById(req, res) {
 // Get all active documents
 async function getAllDocuments(req, res) {
     try {
-        const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc', status } = req.query;
+        const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc', status, search } = req.query;
         
         //Filtering
         const filter = {};
         if(status) filter.status = status;
+
+        //Searching
+        if (search) {
+            filter.$or = [
+                { title: { $regex: search, $options: 'i' } },
+                { description: { $regex: search, $options: 'i' } }
+            ];
+        }
 
         //Sorting
         const order = sortOrder === 'asc' ? 1 : -1;
@@ -119,11 +129,53 @@ async function deleteDocumentById(req, res) {
     }
 }
 
+async function uploadTaskImage(req, res) {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ message: "Invalid Todo ID format", success: false });
+    }
+    const document = await Todo.findById(id);
+    if (!document) {
+        return res.status(404).json({ message: "Todo not found", success: false });
+    }
+
+    upload.single('image')(req, res, async function (err) {
+        if (err) {
+            return res.status(400).json({ message: err.message, success: false });
+        }
+
+        try {
+            const { id } = req.params;
+            const file = req.file;
+
+            if (!file) {
+                return res.status(400).json({ message: 'No file uploaded', success: false });
+            }
+
+            const updatedTask = await Todo.findByIdAndUpdate(
+                id,
+                { $set: { image: file.path } },
+                { new: true }
+            );
+
+            if (!updatedTask) {
+                return res.status(404).json({ message: 'Task not found', success: false });
+            }
+
+            res.status(200).json({ message: 'Image uploaded successfully', success: true, updatedTask });
+        } catch (error) {
+            console.error('Error:', error);
+            res.status(400).json({ message: 'Something went wrong', success: false });
+        }
+    });
+}
 
 module.exports = {
     getAllDocuments,
     getDocumentById,
     createTodo,
     updateDocumentById,
-    deleteDocumentById
+    deleteDocumentById,
+    uploadTaskImage
 };

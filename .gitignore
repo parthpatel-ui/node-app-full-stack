@@ -26,3 +26,4 @@ downloads/Gdrive_Downloads/*
 downloads/Azure_Downloads/*
 !downloads/Azure_Downloads/*.gitkeep
 .env
+public/uploads

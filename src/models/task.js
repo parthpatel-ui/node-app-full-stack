@@ -7,6 +7,10 @@ const todoSchema = new mongoose.Schema({
     required: [true, 'Title is required'], // Custom error message
     trim: true, // Removes leading/trailing whitespace
   },
+  image: {
+    type: String,
+    default: '', // Optional field defaults to an empty string
+  },
   description: {
     type: String,
     default: '', // Optional field defaults to an empty string

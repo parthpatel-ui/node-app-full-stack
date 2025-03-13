@@ -4,10 +4,21 @@ const app = express();
 const path = require('path');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./swagger.json');
+const cors = require("cors");
 
 const { connectDB } = require('./src/config/db');
 
 connectDB();
+
+if(process.env.NODE_ENV === 'development') {
+    app.use(
+        cors({
+            origin: process.env.FRONTEND_URL, // Replace with React app's URL
+            methods: "GET,POST,PUT,DELETE",
+            credentials: true, // Allow cookies (if needed)
+        })
+    );
+}
 
 // Define a route
 app.get('/ping', (req, res) => {
